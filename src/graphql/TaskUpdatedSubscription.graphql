@@ -1,0 +1,7 @@
+subscription TaskUpdated {
+  taskUpdated {
+    id
+    title
+    status
+  }
+}

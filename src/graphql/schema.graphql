@@ -1,0 +1,21 @@
+type Task {
+  id: ID!
+  title: String!
+  status: String! # "PENDING" | "IN_PROGRESS" | "DONE"
+}
+
+type Query {
+  tasks(status: String, sortBy: String): [Task!]!
+}
+
+type Mutation {
+  addTask(title: String!): Task!
+  updateTask(id: ID!, status: String!): Task!
+  deleteTask(id: ID!): ID!
+}
+
+type Subscription {
+  taskAdded: Task!
+  taskUpdated: Task!
+  taskDeleted: ID!
+}

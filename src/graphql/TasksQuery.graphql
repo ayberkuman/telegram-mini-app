@@ -1,0 +1,7 @@
+query Tasks($status: String, $sortBy: String) {
+  tasks(status: $status, sortBy: $sortBy) {
+    id
+    title
+    status
+  }
+}
