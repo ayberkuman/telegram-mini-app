@@ -159,11 +159,19 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleAddTask = async (title: string) => {
     try {
-      await addTask({
+      console.log("Adding task:", title);
+      const result = await addTask({
         variables: { title },
       });
+
+      // Check for GraphQL errors
+      if (result.errors) {
+        console.error("GraphQL errors:", result.errors);
+        throw new Error(result.errors[0].message);
+      }
     } catch (err) {
       console.error("Error adding task:", err);
+      throw err; // Re-throw so the component can catch it
     }
   };
 

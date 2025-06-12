@@ -1,9 +1,19 @@
 import { TaskItem } from "@/components/task-item";
 import { ColorModeButton } from "@/components/ui/color-mode";
+import { toaster } from "@/components/ui/toaster";
 import { useTasks } from "@/context/tasks-context";
-import { Button, Container, Flex, IconButton, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Container,
+  Flex,
+  Group,
+  IconButton,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
-import { Plus, Trash } from "lucide-react";
+import { Check, Plus, Trash, X } from "lucide-react";
+import { useState } from "react";
 
 export default function TaskList() {
   const {
@@ -17,17 +27,66 @@ export default function TaskList() {
     sentinelRef,
   } = useTasks();
 
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [newTask, setNewTask] = useState("");
+
+  const onAddTask = async () => {
+    if (newTask.trim()) {
+      try {
+        await handleAddTask(newTask);
+        setNewTask("");
+        setIsAddingTask(false);
+      } catch (error) {
+        console.error("Error adding task:", error);
+
+        // Get the error message
+        const errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        toaster.create({
+          title: "Error",
+          description: `Failed to add task: ${errorMessage}`,
+        });
+      }
+    }
+  };
+
   return (
     <Container maxW="lg" margin="auto" padding="12">
       <Flex>
         <ColorModeButton />
       </Flex>
       <Flex direction="column" gap="4">
-        {/* Add Task button (implement add logic as needed) */}
-        <Button size="sm">
-          <Plus />
-          <Text>Add Task</Text>
-        </Button>
+        {isAddingTask ? (
+          <Group attached w="full">
+            <Input
+              flex="1"
+              placeholder="Enter your email"
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+            />
+            <IconButton
+              bg="bg.success"
+              variant="plain"
+              onClick={onAddTask}
+              disabled={!newTask.trim()}
+            >
+              <Check className="text-gray-900" />
+            </IconButton>
+            <IconButton
+              bg="bg.warning"
+              variant="plain"
+              onClick={() => setIsAddingTask(false)}
+            >
+              <X />
+            </IconButton>
+          </Group>
+        ) : (
+          <Button size="sm" onClick={() => setIsAddingTask(true)}>
+            <Plus />
+            <Text>Add Task</Text>
+          </Button>
+        )}
         <Flex direction="column" gap="3">
           <AnimatePresence initial={false}>
             {tasks.map((task, i) => (

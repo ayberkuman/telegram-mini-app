@@ -1,9 +1,11 @@
 import { type HTMLMotionProps, motion } from "framer-motion";
-import { Trash } from "lucide-react";
+import { Check } from "lucide-react";
 import * as React from "react";
 
-import { IconButton, Text, Flex } from "@chakra-ui/react";
+import TaskSwitch from "@/components/task-switch";
 import { type Task } from "@/graphql/generated/graphql";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
+import { Tooltip } from "@/components/ui/tooltip";
 
 type TaskItemProps = {
   task: Task;
@@ -33,16 +35,24 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
           borderWidth={1}
           borderColor="gray.200"
         >
-          <Text fontSize="sm" pl={2}>
+          <Text width="40%" fontSize="sm" pl={2}>
             {task.title}
           </Text>
-          <IconButton
-            aria-label="Delete task"
-            onClick={() => handleDeleteTask(task.id)}
-            size="2xs"
-          >
-            <Trash className="text-red-400" />
-          </IconButton>
+          <Flex align="center" gap={2}>
+            <Text fontSize="xs">Pending</Text>
+            <TaskSwitch />
+            <Text fontSize="xs">In Progress</Text>
+          </Flex>
+          <Tooltip openDelay={200} content="Done">
+            <IconButton
+              aria-label="Delete task"
+              onClick={() => handleDeleteTask(task.id)}
+              size="2xs"
+              variant="subtle"
+            >
+              <Check className="text-green-400" />
+            </IconButton>
+          </Tooltip>
         </Flex>
       </motion.div>
     );
