@@ -7,15 +7,13 @@ import {
   useTasksQuery,
 } from "@/graphql/generated/graphql";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-
+import { useTranslation } from "react-i18next";
 const TaskList = () => {
   const { data } = useTasksQuery();
   const [deleteTaskMutation] = useDeleteTaskMutation();
-
-  // Local state for optimistic tasks
+  const { t } = useTranslation();
   const [optimisticTasks, setOptimisticTasks] = useState(data?.tasks ?? []);
 
-  // Sync with server data when it changes
   useEffect(() => {
     setOptimisticTasks(data?.tasks ?? []);
   }, [data?.tasks]);
@@ -24,7 +22,7 @@ const TaskList = () => {
     setOptimisticTasks((tasks) => tasks?.filter((task) => task.id !== id));
     deleteTaskMutation({ variables: { id } });
   };
-
+  console.log(data);
   return (
     <Card.Root width="sm" mx="auto">
       <Card.Body>
@@ -67,6 +65,7 @@ const TaskList = () => {
                           onChange={() => completeItem(item.id)}
                         />
                         <Text>{item.title}</Text>
+                        <div>{t("addTask")}</div>
                       </motion.div>
                     </Card.Root>
                   </motion.div>
