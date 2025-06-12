@@ -12,10 +12,11 @@
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
-    "@chakra-ui/react": "^3.20.0",
+    "@chakra-ui/react": "^3.21.0",
     "@emotion/react": "^11.14.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.3",
     "@tailwindcss/vite": "^4.1.8",
+    "clsx": "^2.1.1",
     "framer-motion": "^12.17.0",
     "graphql": "^16.11.0",
     "graphql-ws": "^5.11.2",
@@ -27,7 +28,7 @@
     "react-i18next": "^15.5.2",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
-    "tailwindcss": "^4.1.8",
+    "tailwindcss": "^4.1.10",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {

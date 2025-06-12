@@ -1,53 +1,79 @@
-import type { Task } from "@/graphql/generated/graphql";
-import { Card, Text } from "@chakra-ui/react";
+import clsx from "clsx";
+import { type HTMLMotionProps, motion } from "framer-motion";
+import { Trash } from "lucide-react";
+import * as React from "react";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { motion } from "framer-motion";
+import { IconButton, Text } from "@chakra-ui/react";
 
-export default function TaskItem({
-  item,
-  completeItem,
-}: {
-  item: Task;
-  completeItem: (id: string) => void;
-}) {
-  return (
-    <motion.div
-      className="flex items-center justify-between gap-1.5 py-8"
-      key={item.id}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.2 } }}
-    >
-      <Card.Root
-        css={{
-          listStyle: "none",
-          height: "100%",
-          flexGrow: 1,
-        }}
-        style={{
-          position: "relative",
-          borderRadius: "12px",
-          width: "100%", // layout resize animation
-          backgroundColor: "transparent",
-        }}
+type SimpleItemProps = {
+  count: number;
+  i: number;
+  countList: number[];
+  setCountList: React.Dispatch<React.SetStateAction<number[]>>;
+} & HTMLMotionProps<"div">;
+
+export const TaskItem = React.forwardRef<HTMLDivElement, SimpleItemProps>(
+  ({ className, count, i, countList, setCountList, ...rest }, ref) => {
+    return (
+      <motion.div
+        key={count}
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: "auto", opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        ref={ref}
+        className={className}
+        {...rest}
       >
-        <motion.div
-          className="flex flex-row items-center p-4 gap-4 h-12 rounded-xl"
-          layout="position"
+        <div
+          className={clsx([
+            "py-1",
+            i === 0 && "pt-0",
+            i === countList.length - 1 && "pb-0",
+          ])}
         >
-          <Checkbox
-            variant="subtle"
-            colorPalette="cyan"
-            ml={4}
-            id={`checkbox-${item.id}`}
-            aria-label="Mark as done"
-            className="cursor-pointer"
-            onChange={() => completeItem(item.id)}
-          />
-          <Text>{item.title}</Text>
-        </motion.div>
-      </Card.Root>
-    </motion.div>
-  );
-}
+          <motion.div
+            className={clsx([
+              "flex items-center justify-between",
+              "px-4 py-1 rounded-xl",
+              "bg-neutral-50 dark:bg-neutral-800 border border-gray-300",
+            ])}
+            initial={{
+              opacity: 0,
+              y: -8,
+              scale: 0.98,
+              filter: "blur(4px)",
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+            }}
+            exit={{
+              opacity: 0,
+              y: 8,
+              scale: 0.98,
+              filter: "blur(4px)",
+            }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+          >
+            <Text fontSize="sm" paddingLeft="2">
+              List Item {count}
+            </Text>
+            <IconButton
+              onClick={() =>
+                setCountList((prev) => [
+                  ...prev.slice(0, i),
+                  ...prev.slice(i + 1),
+                ])
+              }
+            >
+              <Trash />
+            </IconButton>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
+  }
+);
