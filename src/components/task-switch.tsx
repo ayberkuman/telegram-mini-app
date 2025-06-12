@@ -1,29 +1,19 @@
-"use client";
+import { Switch } from "@/components/ui/animated-switch";
+import { useTasks } from "@/context/tasks-context";
+import type { Task } from "@/graphql/generated/graphql";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
+export default function TaskSwitch({ task }: { task: Task }) {
+  const { handleStatusChange } = useTasks();
 
-export default function LayoutAnimation() {
-  const [isOn, setIsOn] = useState(false);
-
-  const toggleSwitch = () => setIsOn(!isOn);
+  const toggleSwitch = (checked: boolean) => {
+    handleStatusChange(task.id, checked ? "IN_PROGRESS" : "PENDING");
+  };
 
   return (
-    <div
-      className={`w-10 h-5 rounded-2xl transition-all duration-300 flex ${
-        isOn ? "justify-end bg-amber-400" : "justify-start bg-gray-400"
-      }`}
-      onClick={toggleSwitch}
-    >
-      <motion.div
-        className="w-5 h-5 bg-white rounded-2xl"
-        layout
-        transition={{
-          type: "spring",
-          visualDuration: 0.2,
-          bounce: 0.2,
-        }}
-      />
-    </div>
+    <Switch
+      id={`task-switch-${task.id}`}
+      checked={task.status === "IN_PROGRESS"}
+      setChecked={toggleSwitch}
+    />
   );
 }

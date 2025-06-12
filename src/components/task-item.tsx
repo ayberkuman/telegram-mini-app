@@ -21,7 +21,7 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        transition={{ duration: 0.2, ease: "easeIn" }}
         ref={ref}
         {...rest}
       >
@@ -40,7 +40,7 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
           </Text>
           <Flex align="center" gap={2}>
             <Text fontSize="xs">Pending</Text>
-            <TaskSwitch />
+            <TaskSwitch task={task} />
             <Text fontSize="xs">In Progress</Text>
           </Flex>
           <Tooltip openDelay={200} content="Done">

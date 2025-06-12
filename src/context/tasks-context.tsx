@@ -177,25 +177,37 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleStatusChange = async (id: string, status: TaskStatus) => {
     try {
-      await updateTask({
+      const result = await updateTask({
         variables: { id, status },
       });
+
+      if (result.errors) {
+        console.error("GraphQL errors:", result.errors);
+        throw new Error(result.errors[0].message);
+      }
     } catch (err) {
       console.error("Error details:", {
         message: (err as Error).message,
         graphQLErrors: (err as ApolloError).graphQLErrors,
         networkError: (err as ApolloError).networkError,
       });
+      throw err;
     }
   };
 
   const handleDeleteTask = async (id: string) => {
     try {
-      await deleteTask({
+      const result = await deleteTask({
         variables: { id },
       });
+
+      if (result.errors) {
+        console.error("GraphQL errors:", result.errors);
+        throw new Error(result.errors[0].message);
+      }
     } catch (err) {
       console.error("Error deleting task:", err);
+      throw err;
     }
   };
 

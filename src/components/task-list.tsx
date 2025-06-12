@@ -1,3 +1,4 @@
+import SortAndFilter from "@/components/sort-and-filter";
 import { TaskItem } from "@/components/task-item";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { toaster } from "@/components/ui/toaster";
@@ -12,20 +13,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
-import { Check, Plus, Trash, X } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 export default function TaskList() {
-  const {
-    tasks,
-    hasMore,
-    loading,
-    error,
-    handleAddTask,
-    handleStatusChange,
-    handleDeleteTask,
-    sentinelRef,
-  } = useTasks();
+  const { tasks, handleAddTask, handleDeleteTask } = useTasks();
 
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState("");
@@ -57,36 +49,40 @@ export default function TaskList() {
         <ColorModeButton />
       </Flex>
       <Flex direction="column" gap="4">
-        {isAddingTask ? (
-          <Group attached w="full">
-            <Input
-              flex="1"
-              placeholder="Enter your email"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-            />
-            <IconButton
-              bg="bg.success"
-              variant="plain"
-              onClick={onAddTask}
-              disabled={!newTask.trim()}
-            >
-              <Check className="text-gray-900" />
-            </IconButton>
-            <IconButton
-              bg="bg.warning"
-              variant="plain"
-              onClick={() => setIsAddingTask(false)}
-            >
-              <X />
-            </IconButton>
-          </Group>
-        ) : (
-          <Button size="sm" onClick={() => setIsAddingTask(true)}>
-            <Plus />
-            <Text>Add Task</Text>
-          </Button>
-        )}
+        <Flex justify="space-between">
+          {isAddingTask ? (
+            <Group attached w="full">
+              <Input
+                flex="1"
+                placeholder="Enter your email"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+              />
+              <IconButton
+                bg="bg.success"
+                variant="plain"
+                onClick={onAddTask}
+                disabled={!newTask.trim()}
+              >
+                <Check className="text-gray-900" />
+              </IconButton>
+              <IconButton
+                bg="bg.warning"
+                variant="plain"
+                onClick={() => setIsAddingTask(false)}
+              >
+                <X />
+              </IconButton>
+            </Group>
+          ) : (
+            <Button size="sm" onClick={() => setIsAddingTask(true)}>
+              <Plus />
+              <Text>Add Task</Text>
+            </Button>
+          )}
+
+          <SortAndFilter />
+        </Flex>
         <Flex direction="column" gap="3">
           <AnimatePresence initial={false}>
             {tasks.map((task, i) => (
@@ -103,10 +99,6 @@ export default function TaskList() {
           <Text color="gray.500" fontSize="sm">
             Total tasks: {tasks.length}
           </Text>
-          <IconButton variant="solid" size="sm" aria-label="Delete all">
-            <Trash />
-            Delete all
-          </IconButton>
         </Flex>
       </Flex>
     </Container>
