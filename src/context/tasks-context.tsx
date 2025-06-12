@@ -7,6 +7,8 @@ import {
   type TasksQueryVariables,
   type Task,
 } from "@/graphql/generated/graphql";
+import { statusVar, sortByVar, type TaskStatus } from "@/graphql/reactiveVars";
+import { useReactiveVar } from "@apollo/client";
 
 interface TasksContextType {
   tasks: Task[] | undefined;
@@ -16,6 +18,10 @@ interface TasksContextType {
   addTask: (title: string) => void;
   updateTask: (id: string, status: string) => void;
   deleteTask: (id: string) => void;
+  status: string | undefined;
+  sortBy: string | undefined;
+  setStatus: (status: TaskStatus | undefined) => void;
+  setSortBy: (sortBy: string | undefined) => void;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -23,7 +29,12 @@ const TasksContext = createContext<TasksContextType | undefined>(undefined);
 export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { data, loading, error, refetch } = useTasksQuery();
+  const status = useReactiveVar(statusVar);
+  const sortBy = useReactiveVar(sortByVar);
+
+  const { data, loading, error, refetch } = useTasksQuery({
+    variables: { status, sortBy },
+  });
   const [addTaskMutation] = useAddTaskMutation();
   const [updateTaskMutation] = useUpdateTaskMutation();
   const [deleteTaskMutation] = useDeleteTaskMutation();
@@ -40,6 +51,9 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     deleteTaskMutation({ variables: { id } });
   };
 
+  const setStatus = (newStatus: TaskStatus | undefined) => statusVar(newStatus);
+  const setSortBy = (newSort: string | undefined) => sortByVar(newSort);
+
   return (
     <TasksContext.Provider
       value={{
@@ -50,6 +64,10 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
         addTask,
         updateTask,
         deleteTask,
+        status,
+        sortBy,
+        setStatus,
+        setSortBy,
       }}
     >
       {children}
