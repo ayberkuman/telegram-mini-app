@@ -1,78 +1,49 @@
-import clsx from "clsx";
 import { type HTMLMotionProps, motion } from "framer-motion";
 import { Trash } from "lucide-react";
 import * as React from "react";
 
-import { IconButton, Text } from "@chakra-ui/react";
+import { IconButton, Text, Flex } from "@chakra-ui/react";
+import { type Task } from "@/graphql/generated/graphql";
 
-type SimpleItemProps = {
-  count: number;
+type TaskItemProps = {
+  task: Task;
   i: number;
-  countList: number[];
-  setCountList: React.Dispatch<React.SetStateAction<number[]>>;
+  handleDeleteTask: (id: string) => void;
 } & HTMLMotionProps<"div">;
 
-export const TaskItem = React.forwardRef<HTMLDivElement, SimpleItemProps>(
-  ({ className, count, i, countList, setCountList, ...rest }, ref) => {
+export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
+  ({ task, handleDeleteTask, ...rest }, ref) => {
     return (
       <motion.div
-        key={count}
+        key={task.id}
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         ref={ref}
-        className={className}
         {...rest}
       >
-        <div
-          className={clsx([
-            "py-1",
-            i === 0 && "pt-0",
-            i === countList.length - 1 && "pb-0",
-          ])}
+        <Flex
+          align="center"
+          justify="space-between"
+          px={4}
+          py={1}
+          borderRadius="md"
+          bg="bg.muted"
+          borderWidth={1}
+          borderColor="gray.200"
         >
-          <motion.div
-            className={clsx([
-              "flex items-center justify-between",
-              "px-4 py-1 rounded-xl",
-              "bg-neutral-50 dark:bg-neutral-800 border border-gray-300",
-            ])}
-            initial={{
-              opacity: 0,
-              y: -8,
-              scale: 0.98,
-              filter: "blur(4px)",
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              filter: "blur(0px)",
-            }}
-            exit={{
-              opacity: 0,
-              y: 8,
-              scale: 0.98,
-              filter: "blur(4px)",
-            }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+          <Text fontSize="sm" pl={2}>
+            {task.title}
+          </Text>
+          <IconButton
+            aria-label="Delete task"
+            onClick={() => handleDeleteTask(task.id)}
+            size="2xs"
           >
-            <Text fontSize="sm" paddingLeft="2">
-              List Item {count}
-            </Text>
-            <IconButton
-              onClick={() =>
-                setCountList((prev) => [
-                  ...prev.slice(0, i),
-                  ...prev.slice(i + 1),
-                ])
-              }
-            >
-              <Trash />
-            </IconButton>
-          </motion.div>
-        </div>
+            <Trash className="text-red-400" />
+          </IconButton>
+        </Flex>
       </motion.div>
     );
   }

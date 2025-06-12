@@ -1,23 +1,29 @@
-import React, { createContext, useContext } from "react";
 import {
-  useTasksQuery,
+  TasksDocument,
   useAddTaskMutation,
-  useUpdateTaskMutation,
   useDeleteTaskMutation,
-  type TasksQueryVariables,
+  useTaskAddedSubscription,
+  useTaskDeletedSubscription,
+  useTasksQuery,
+  useTaskUpdatedSubscription,
+  useUpdateTaskMutation,
   type Task,
+  type TasksQuery,
 } from "@/graphql/generated/graphql";
-import { statusVar, sortByVar, type TaskStatus } from "@/graphql/reactiveVars";
-import { useReactiveVar } from "@apollo/client";
+import { sortByVar, statusVar, type TaskStatus } from "@/graphql/reactiveVars";
+import { ApolloError, useApolloClient, useReactiveVar } from "@apollo/client";
+import React, { createContext, useContext, useEffect } from "react";
 
 interface TasksContextType {
-  tasks: Task[] | undefined;
+  tasks: Task[];
+  totalCount: number;
+  hasMore: boolean;
   loading: boolean;
-  error: Error | undefined;
-  refetch: (variables?: TasksQueryVariables) => void;
-  addTask: (title: string) => void;
-  updateTask: (id: string, status: string) => void;
-  deleteTask: (id: string) => void;
+  error: ApolloError | undefined;
+  handleAddTask: (title: string) => Promise<void>;
+  handleStatusChange: (id: string, status: TaskStatus) => Promise<void>;
+  handleDeleteTask: (id: string) => Promise<void>;
+
   status: string | undefined;
   sortBy: string | undefined;
   setStatus: (status: TaskStatus | undefined) => void;
@@ -32,38 +38,170 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
   const status = useReactiveVar(statusVar);
   const sortBy = useReactiveVar(sortByVar);
 
-  const { data, loading, error, refetch } = useTasksQuery({
+  const client = useApolloClient();
+
+  const { data, loading, error } = useTasksQuery({
     variables: { status, sortBy },
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
-  const [addTaskMutation] = useAddTaskMutation();
-  const [updateTaskMutation] = useUpdateTaskMutation();
-  const [deleteTaskMutation] = useDeleteTaskMutation();
 
-  const addTask = (title: string) => {
-    addTaskMutation({ variables: { title } });
-  };
+  const [addTask] = useAddTaskMutation({
+    optimisticResponse: (variables) => ({
+      addTask: {
+        __typename: "Task",
+        id: `temp-${Date.now()}-${Math.random()}`,
+        title: variables.title,
+        status: "PENDING" as TaskStatus,
+      },
+    }),
+  });
 
-  const updateTask = (id: string, status: string) => {
-    updateTaskMutation({ variables: { id, status } });
-  };
+  const [updateTask] = useUpdateTaskMutation({
+    optimisticResponse: (variables) => ({
+      updateTask: {
+        __typename: "Task",
+        id: variables.id,
+        title: "",
+        status: variables.status as TaskStatus,
+      },
+    }),
+    update: (cache, { data }) => {
+      if (data?.updateTask) {
+        cache.modify({
+          id: cache.identify(data.updateTask),
+          fields: {
+            status() {
+              return data.updateTask.status as TaskStatus;
+            },
+          },
+        });
+      }
+    },
+  });
 
-  const deleteTask = (id: string) => {
-    deleteTaskMutation({ variables: { id } });
-  };
+  const [deleteTask] = useDeleteTaskMutation({
+    optimisticResponse: (variables) => ({
+      deleteTask: variables.id,
+    }),
+    update: (cache, { data }) => {
+      if (data?.deleteTask) {
+        const existingData = cache.readQuery<TasksQuery>({
+          query: TasksDocument,
+          variables: { status, sortBy },
+        });
+
+        if (existingData?.tasks) {
+          cache.writeQuery({
+            query: TasksDocument,
+            variables: { status, sortBy },
+            data: {
+              tasks: existingData.tasks.filter(
+                (task) => task.id !== data.deleteTask
+              ),
+            },
+          });
+        }
+      }
+    },
+  });
 
   const setStatus = (newStatus: TaskStatus | undefined) => statusVar(newStatus);
   const setSortBy = (newSort: string | undefined) => sortByVar(newSort);
 
+  const { data: taskAdded } = useTaskAddedSubscription();
+  const { data: taskUpdated } = useTaskUpdatedSubscription();
+  const { data: taskDeleted } = useTaskDeletedSubscription();
+
+  useEffect(() => {}, [taskUpdated]);
+
+  useEffect(() => {
+    if (taskAdded?.taskAdded) {
+      const existingData = client.readQuery<TasksQuery>({
+        query: TasksDocument,
+        variables: { status, sortBy },
+      });
+
+      if (existingData?.tasks) {
+        // Only add if task doesn't already exist (prevents duplicates)
+        const taskExists = existingData.tasks.some(
+          (task) => task.id === taskAdded.taskAdded.id
+        );
+
+        if (!taskExists) {
+          client.writeQuery({
+            query: TasksDocument,
+            variables: { status, sortBy },
+            data: {
+              tasks: {
+                ...existingData.tasks,
+                tasks: [taskAdded.taskAdded, ...existingData.tasks],
+                totalCount: existingData.tasks.length + 1,
+              },
+            },
+          });
+        }
+      }
+    }
+  }, [taskAdded, client, status, sortBy]);
+
+  useEffect(() => {
+    if (taskDeleted?.taskDeleted) {
+      client.cache.evict({
+        id: client.cache.identify({
+          __typename: "Task",
+          id: taskDeleted.taskDeleted,
+        }),
+      });
+      client.cache.gc();
+    }
+  }, [taskDeleted, client]);
+
+  const handleAddTask = async (title: string) => {
+    try {
+      await addTask({
+        variables: { title },
+      });
+    } catch (err) {
+      console.error("Error adding task:", err);
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: TaskStatus) => {
+    try {
+      await updateTask({
+        variables: { id, status },
+      });
+    } catch (err) {
+      console.error("Error details:", {
+        message: (err as Error).message,
+        graphQLErrors: (err as ApolloError).graphQLErrors,
+        networkError: (err as ApolloError).networkError,
+      });
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      await deleteTask({
+        variables: { id },
+      });
+    } catch (err) {
+      console.error("Error deleting task:", err);
+    }
+  };
+
   return (
     <TasksContext.Provider
       value={{
-        tasks: data?.tasks,
+        tasks: data?.tasks || [],
+        totalCount: data?.tasks?.length || 0,
+        hasMore: false,
         loading,
-        error: error as Error | undefined,
-        refetch,
-        addTask,
-        updateTask,
-        deleteTask,
+        error,
+        handleAddTask,
+        handleStatusChange,
+        handleDeleteTask,
         status,
         sortBy,
         setStatus,

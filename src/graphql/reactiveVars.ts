@@ -4,3 +4,4 @@ export type TaskStatus = "PENDING" | "IN_PROGRESS" | "DONE";
 
 export const statusVar = makeVar<TaskStatus | undefined>(undefined);
 export const sortByVar = makeVar<string | undefined>(undefined);
+export const limitVar = makeVar<number>(10);
