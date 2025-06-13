@@ -1,11 +1,10 @@
 import { type HTMLMotionProps, motion } from "framer-motion";
-import { Check } from "lucide-react";
 import * as React from "react";
 
 import TaskSwitch from "@/components/task-switch";
+import AnimatedCheckbox from "@/components/ui/animated-checkbox";
 import { type Task } from "@/graphql/generated/graphql";
-import { Flex, IconButton, Text } from "@chakra-ui/react";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Badge, Flex } from "@chakra-ui/react";
 
 type TaskItemProps = {
   task: Task;
@@ -15,6 +14,9 @@ type TaskItemProps = {
 
 export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
   ({ task, handleDeleteTask, ...rest }, ref) => {
+    const handleCheckboxChange = (checked: boolean) => {
+      if (checked) handleDeleteTask(task.id);
+    };
     return (
       <motion.div
         key={task.id}
@@ -28,31 +30,24 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
         <Flex
           align="center"
           justify="space-between"
-          px={4}
-          py={1}
+          px={2}
+          py={4}
           borderRadius="md"
-          bg="bg.muted"
           borderWidth={1}
           borderColor="gray.200"
         >
-          <Text width="40%" fontSize="sm" pl={2}>
-            {task.title}
-          </Text>
+          <AnimatedCheckbox
+            id={`task-checkbox-${task.id}`}
+            onChange={handleCheckboxChange}
+          >
+            <AnimatedCheckbox.Indicator />
+            <AnimatedCheckbox.Label>{task.title}</AnimatedCheckbox.Label>
+          </AnimatedCheckbox>
           <Flex align="center" gap={2}>
-            <Text fontSize="xs">Pending</Text>
+            <Badge fontSize="xs">Pending</Badge>
             <TaskSwitch task={task} />
-            <Text fontSize="xs">In Progress</Text>
+            <Badge fontSize="xs">In Progress</Badge>
           </Flex>
-          <Tooltip openDelay={200} content="Done">
-            <IconButton
-              aria-label="Delete task"
-              onClick={() => handleDeleteTask(task.id)}
-              size="2xs"
-              variant="subtle"
-            >
-              <Check className="text-green-400" />
-            </IconButton>
-          </Tooltip>
         </Flex>
       </motion.div>
     );

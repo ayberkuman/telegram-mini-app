@@ -1,7 +1,9 @@
+import { LanguageSwitcher } from "@/components/language-switcher";
 import SortAndFilter from "@/components/sort-and-filter";
 import { TaskItem } from "@/components/task-item";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { toaster } from "@/components/ui/toaster";
+import { useLanguage } from "@/context/language-context";
 import { useTasks } from "@/context/tasks-context";
 import {
   Button,
@@ -12,11 +14,16 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
+import { TonConnectButton } from "@tonconnect/ui-react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function TaskList() {
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  console.log(language);
   const { tasks, handleAddTask, handleDeleteTask } = useTasks();
 
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -44,12 +51,21 @@ export default function TaskList() {
   };
 
   return (
-    <Container maxW="lg" margin="auto" padding="12">
-      <Flex>
+    <Container maxW="xl" margin="auto" padding="12">
+      <Flex justify="space-between" align="center" w="full">
         <ColorModeButton />
+        <TonConnectButton />
+        <LanguageSwitcher />
       </Flex>
-      <Flex direction="column" gap="4">
-        <Flex justify="space-between">
+      <Flex
+        direction="column"
+        gap="4"
+        border="1px solid"
+        borderColor="gray.200"
+        py={4}
+        px={4}
+      >
+        <Flex justify="space-between" align="end">
           {isAddingTask ? (
             <Group attached w="full">
               <Input
@@ -77,7 +93,7 @@ export default function TaskList() {
           ) : (
             <Button size="sm" onClick={() => setIsAddingTask(true)}>
               <Plus />
-              <Text>Add Task</Text>
+              <Text>{t("addTask")}</Text>
             </Button>
           )}
 

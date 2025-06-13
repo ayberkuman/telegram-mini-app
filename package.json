@@ -16,6 +16,7 @@
     "@emotion/react": "^11.14.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.3",
     "@tailwindcss/vite": "^4.1.8",
+    "@tonconnect/ui-react": "^2.1.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.17.0",
     "graphql": "^16.11.0",
