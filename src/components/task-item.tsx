@@ -5,6 +5,8 @@ import TaskSwitch from "@/components/task-switch";
 import AnimatedCheckbox from "@/components/ui/animated-checkbox";
 import { type Task } from "@/graphql/generated/graphql";
 import { Badge, Flex } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type TaskItemProps = {
   task: Task;
@@ -14,6 +16,8 @@ type TaskItemProps = {
 
 export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
   ({ task, handleDeleteTask, ...rest }, ref) => {
+    const navigate = useNavigate();
+    const { t } = useTranslation();
     const handleCheckboxChange = (checked: boolean) => {
       if (checked) handleDeleteTask(task.id);
     };
@@ -35,6 +39,7 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
           borderRadius="md"
           borderWidth={1}
           borderColor="gray.200"
+          onClick={() => navigate(`/tasks/${task.id}`)}
         >
           <AnimatedCheckbox
             id={`task-checkbox-${task.id}`}
@@ -44,9 +49,9 @@ export const TaskItem = React.forwardRef<HTMLDivElement, TaskItemProps>(
             <AnimatedCheckbox.Label>{task.title}</AnimatedCheckbox.Label>
           </AnimatedCheckbox>
           <Flex align="center" gap={2}>
-            <Badge fontSize="xs">Pending</Badge>
+            <Badge fontSize="xs">{t("pending")}</Badge>
             <TaskSwitch task={task} />
-            <Badge fontSize="xs">In Progress</Badge>
+            <Badge fontSize="xs">{t("inProgress")}</Badge>
           </Flex>
         </Flex>
       </motion.div>

@@ -3,9 +3,9 @@ import SortAndFilter from "@/components/sort-and-filter";
 import { TaskItem } from "@/components/task-item";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { toaster } from "@/components/ui/toaster";
-import { useLanguage } from "@/context/language-context";
 import { useTasks } from "@/context/tasks-context";
 import {
+  Badge,
   Button,
   Container,
   Flex,
@@ -14,7 +14,7 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
-import { TonConnectButton } from "@tonconnect/ui-react";
+import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
 import { useState } from "react";
@@ -22,8 +22,7 @@ import { useTranslation } from "react-i18next";
 
 export default function TaskList() {
   const { t } = useTranslation();
-  const { language } = useLanguage();
-  console.log(language);
+  const userAddress = useTonAddress();
   const { tasks, handleAddTask, handleDeleteTask } = useTasks();
 
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -54,7 +53,11 @@ export default function TaskList() {
     <Container maxW="xl" margin="auto" padding="12">
       <Flex justify="space-between" align="center" w="full">
         <ColorModeButton />
-        <TonConnectButton />
+        {userAddress ? (
+          <Badge variant="plain">{userAddress}</Badge>
+        ) : (
+          <TonConnectButton />
+        )}
         <LanguageSwitcher />
       </Flex>
       <Flex
@@ -66,11 +69,26 @@ export default function TaskList() {
         px={4}
       >
         <Flex justify="space-between" align="end">
+          <SortAndFilter />
+        </Flex>
+        <Flex direction="column" gap="3" maxH="400px" overflowY="auto">
+          <AnimatePresence initial={false}>
+            {tasks.map((task, i) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                i={i}
+                handleDeleteTask={handleDeleteTask}
+              />
+            ))}
+          </AnimatePresence>
+        </Flex>
+        <Flex pt={4} align="center" justify="space-between">
           {isAddingTask ? (
             <Group attached w="full">
               <Input
                 flex="1"
-                placeholder="Enter your email"
+                placeholder={t("addTask")}
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
               />
@@ -96,25 +114,6 @@ export default function TaskList() {
               <Text>{t("addTask")}</Text>
             </Button>
           )}
-
-          <SortAndFilter />
-        </Flex>
-        <Flex direction="column" gap="3">
-          <AnimatePresence initial={false}>
-            {tasks.map((task, i) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                i={i}
-                handleDeleteTask={handleDeleteTask}
-              />
-            ))}
-          </AnimatePresence>
-        </Flex>
-        <Flex pt={4} align="center" justify="space-between">
-          <Text color="gray.500" fontSize="sm">
-            Total tasks: {tasks.length}
-          </Text>
         </Flex>
       </Flex>
     </Container>

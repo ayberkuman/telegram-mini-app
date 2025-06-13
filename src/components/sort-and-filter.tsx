@@ -3,22 +3,23 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "@/context/tasks-context";
 import type { TaskStatus } from "@/graphql/reactiveVars";
+import { useTranslation } from "react-i18next";
 
 const STATUS_ITEMS = [
-  { value: "PENDING", label: "Pending" },
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "DONE", label: "Done" },
+  { value: "PENDING", label: "pending" },
+  { value: "IN_PROGRESS", label: "inProgress" },
+  { value: "DONE", label: "done" },
 ];
 const SORT_ITEMS = [
-  { value: "title", label: "Title" },
-  { value: "status", label: "Status" },
+  { value: "title", label: "title" },
+  { value: "status", label: "status" },
 ];
 
 const statusCollection = createListCollection({
-  items: [{ value: "", label: "All" }, ...STATUS_ITEMS],
+  items: [{ value: "", label: "all" }, ...STATUS_ITEMS],
 });
 const sortCollection = createListCollection({
-  items: [{ value: "", label: "Default" }, ...SORT_ITEMS],
+  items: [{ value: "", label: "default" }, ...SORT_ITEMS],
 });
 
 const isTaskStatus = (val: string | null | undefined): val is TaskStatus =>
@@ -26,6 +27,7 @@ const isTaskStatus = (val: string | null | undefined): val is TaskStatus =>
 
 export default function SortAndFilter() {
   const { status, sortBy, setStatus, setSortBy } = useTasks();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -56,10 +58,16 @@ export default function SortAndFilter() {
         }}
       >
         <Select.HiddenSelect />
-        <Select.Label>Status</Select.Label>
+        <Select.Label>{t("status")}</Select.Label>
         <Select.Control>
           <Select.Trigger>
-            <Select.ValueText placeholder="All" />
+            <Select.ValueText>
+              {t(
+                statusCollection.items.find(
+                  (item) => item.value === (status || "")
+                )?.label || "default"
+              )}
+            </Select.ValueText>
           </Select.Trigger>
           <Select.IndicatorGroup>
             <Select.Indicator />
@@ -70,7 +78,7 @@ export default function SortAndFilter() {
             <Select.Content>
               {statusCollection.items.map((item) => (
                 <Select.Item item={item} key={item.value || "all"}>
-                  {item.label}
+                  {t(item.label)}
                   <Select.ItemIndicator />
                 </Select.Item>
               ))}
@@ -88,10 +96,16 @@ export default function SortAndFilter() {
         }}
       >
         <Select.HiddenSelect />
-        <Select.Label>Sort By</Select.Label>
+        <Select.Label>{t("sortBy")}</Select.Label>
         <Select.Control>
           <Select.Trigger>
-            <Select.ValueText placeholder="Default" />
+            <Select.ValueText>
+              {t(
+                sortCollection.items.find(
+                  (item) => item.value === (sortBy || "")
+                )?.label || "default"
+              )}
+            </Select.ValueText>
           </Select.Trigger>
           <Select.IndicatorGroup>
             <Select.Indicator />
@@ -102,7 +116,7 @@ export default function SortAndFilter() {
             <Select.Content>
               {sortCollection.items.map((item) => (
                 <Select.Item item={item} key={item.value || "default"}>
-                  {item.label}
+                  {t(item.label)}
                   <Select.ItemIndicator />
                 </Select.Item>
               ))}

@@ -3,5 +3,13 @@
   "editTask": "Görev Düzenle",
   "deleteTask": "Görev Sil",
   "taskList": "Görev Listesi",
-  "taskDetails": "Görev Detayları"
+  "taskDetails": "Görev Detayları",
+  "status": "Durum",
+  "sortBy": "Sırala",
+  "default": "Varsayılan",
+  "pending": "Beklemede",
+  "inProgress": "Devam Ediyor",
+  "done": "Tamamlandı",
+  "all": "Tümü",
+  "title": "Başlık"
 }

@@ -3,5 +3,13 @@
   "editTask": "Edit Task",
   "deleteTask": "Delete Task",
   "taskList": "Task List",
-  "taskDetails": "Task Details"
+  "taskDetails": "Task Details",
+  "status": "Status",
+  "sortBy": "Sort By",
+  "default": "Default",
+  "pending": "Pending",
+  "inProgress": "In Progress",
+  "done": "Done",
+  "all": "All",
+  "title": "Title"
 }

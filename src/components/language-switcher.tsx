@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Badge,
   HStack,
   IconButton,
   Portal,
@@ -10,12 +9,12 @@ import {
   useSelectContext,
 } from "@chakra-ui/react";
 
-import { RiGlobalLine } from "react-icons/ri";
 import { useLanguage } from "@/context/language-context";
+import { RiGlobalLine } from "react-icons/ri";
 
 const SelectTrigger = () => {
   const select = useSelectContext();
-  const items = select.selectedItems as Framework[];
+
   return (
     <IconButton
       variant="outline"
@@ -36,11 +35,7 @@ const SelectTrigger = () => {
       borderBottomRadius={0}
       {...select.getTriggerProps()}
     >
-      {items && items.length > 0 && items[0]?.value ? (
-        <Badge variant="plain">{items[0].value}</Badge>
-      ) : (
-        <RiGlobalLine />
-      )}
+      <RiGlobalLine />
     </IconButton>
   );
 };
@@ -81,12 +76,7 @@ export const LanguageSwitcher = () => {
 const frameworks = createListCollection({
   items: [
     { label: "English", value: "en" },
-    { label: "Russian", value: "ru" },
-    { label: "Turkish", value: "tr" },
+    { label: "Русский", value: "ru" },
+    { label: "Türkçe", value: "tr" },
   ],
 });
-
-interface Framework {
-  label: string;
-  value: string;
-}
