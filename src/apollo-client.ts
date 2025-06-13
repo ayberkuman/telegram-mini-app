@@ -9,14 +9,15 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
 
+
 const httpLink = new HttpLink({
-  uri: process.env.GRAPHQL_HTTP,
+  uri: import.meta.env.VITE_GRAPHQL_HTTP,
 });
 
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: process.env.GRAPHQL_WS!,
+    url: import.meta.env.VITE_GRAPHQL_WS,
   })
 );
 
