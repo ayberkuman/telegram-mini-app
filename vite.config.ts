@@ -8,4 +8,9 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), tailwindcss()],
+  preview: {
+    allowedHosts: [
+      "telegram-mini-app-c3cg.onrender.com"
+    ]
+  }
 });
