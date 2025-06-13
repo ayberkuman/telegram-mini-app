@@ -41,7 +41,7 @@ interface CheckboxProps {
   onChange?: (checked: boolean) => void;
 }
 
-export default function Checkbox({ children, id, onChange }: CheckboxProps) {
+function Checkbox({ children, id, onChange }: CheckboxProps) {
   const [isChecked, setIsChecked] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
   const handleSetIsChecked = (checked: boolean) => {
@@ -71,7 +71,7 @@ export default function Checkbox({ children, id, onChange }: CheckboxProps) {
   );
 }
 
-function CheckboxIndicator() {
+function CheckboxIndicator({ onClick }: { onClick?: React.MouseEventHandler }) {
   const {
     id,
     isChecked,
@@ -95,7 +95,11 @@ function CheckboxIndicator() {
   }, [pendingDelete, isChecked, onChange, setPendingDelete]);
 
   return (
-    <button className="relative flex items-center z-50" tabIndex={-1}>
+    <button
+      className="relative flex items-center z-50"
+      tabIndex={-1}
+      onClick={onClick}
+    >
       <input
         type="checkbox"
         className="peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-blue-gray-200 checked:border-blue-500"
@@ -157,13 +161,15 @@ function CheckboxIndicator() {
   );
 }
 
+// Attach Indicator and Label as static properties
 Checkbox.Indicator = CheckboxIndicator;
 
 interface CheckboxLabelProps {
   children: ReactNode;
+  onClick?: React.MouseEventHandler;
 }
 
-function CheckboxLabel({ children }: CheckboxLabelProps) {
+function CheckboxLabel({ children, onClick }: CheckboxLabelProps) {
   const { id, isChecked } = useContext(CheckboxContext);
 
   return (
@@ -182,10 +188,19 @@ function CheckboxLabel({ children }: CheckboxLabelProps) {
         duration: 0.3,
         ease: "easeOut",
       }}
+      onClick={onClick}
     >
       {children}
     </motion.label>
   );
 }
 
+// Attach Label as static property
 Checkbox.Label = CheckboxLabel;
+
+const ExportedCheckbox = Object.assign(Checkbox, {
+  Indicator: CheckboxIndicator,
+  Label: CheckboxLabel,
+});
+
+export default ExportedCheckbox;

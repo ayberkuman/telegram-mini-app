@@ -2,8 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTasks } from "@/context/tasks-context";
 import { Box, Flex, Badge, Button, Heading, Text } from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
+import React from "react";
 
-export default function TaskDetails() {
+const TaskDetailsComponent = function TaskDetails() {
   const { taskId } = useParams<{ taskId: string }>();
   const { tasks } = useTasks();
   const navigate = useNavigate();
@@ -57,4 +58,6 @@ export default function TaskDetails() {
       </Box>
     </Flex>
   );
-}
+};
+
+export default React.memo(TaskDetailsComponent);
