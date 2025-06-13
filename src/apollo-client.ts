@@ -10,13 +10,13 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:3000/graphql", // Update to your server's HTTP endpoint
+  uri: process.env.GRAPHQL_HTTP,
 });
 
-// WebSocket link for subscriptions
+
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://localhost:3000/graphql", // Update to your server's WS endpoint
+    url: process.env.GRAPHQL_WS!,
   })
 );
 
