@@ -5,7 +5,6 @@ import { ColorModeButton } from "@/components/ui/color-mode";
 import { toaster } from "@/components/ui/toaster";
 import { useTasks } from "@/context/tasks-context";
 import {
-  Badge,
   Button,
   Container,
   Flex,
@@ -14,15 +13,14 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
-import { useState, useMemo, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function TaskList() {
   const { t } = useTranslation();
-  const userAddress = useTonAddress();
+  /*  const userAddress = useTonAddress(); */
   const { tasks, handleAddTask, handleDeleteTask } = useTasks();
 
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -64,11 +62,11 @@ export default function TaskList() {
     <Container maxW="xl" margin="auto" padding="12">
       <Flex justify="space-between" align="center" w="full">
         <ColorModeButton />
-        {userAddress ? (
+        {/*  {userAddress ? (
           <Badge variant="plain">{userAddress}</Badge>
         ) : (
           <TonConnectButton />
-        )}
+        )} */}
         <LanguageSwitcher />
       </Flex>
       <Flex

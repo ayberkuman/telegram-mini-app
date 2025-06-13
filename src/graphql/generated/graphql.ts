@@ -42,11 +42,13 @@ export type MutationUpdateTaskArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  tasks: Array<Task>;
+  tasks: TasksResult;
 };
 
 
 export type QueryTasksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
 };
@@ -63,6 +65,13 @@ export type Task = {
   id: Scalars['ID']['output'];
   status: Scalars['String']['output'];
   title: Scalars['String']['output'];
+};
+
+export type TasksResult = {
+  __typename?: 'TasksResult';
+  hasMore: Scalars['Boolean']['output'];
+  tasks: Array<Task>;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type AddTaskMutationVariables = Exact<{
@@ -94,13 +103,15 @@ export type TaskUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 export type TaskUpdatedSubscription = { __typename?: 'Subscription', taskUpdated: { __typename?: 'Task', id: string, title: string, status: string } };
 
-export type TasksQueryVariables = Exact<{
+export type TasksQueryQueryVariables = Exact<{
   status?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type TasksQuery = { __typename?: 'Query', tasks: Array<{ __typename?: 'Task', id: string, title: string, status: string }> };
+export type TasksQueryQuery = { __typename?: 'Query', tasks: { __typename?: 'TasksResult', totalCount: number, hasMore: boolean, tasks: Array<{ __typename?: 'Task', id: string, title: string, status: string }> } };
 
 export type UpdateTaskMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -266,49 +277,55 @@ export function useTaskUpdatedSubscription(baseOptions?: Apollo.SubscriptionHook
       }
 export type TaskUpdatedSubscriptionHookResult = ReturnType<typeof useTaskUpdatedSubscription>;
 export type TaskUpdatedSubscriptionResult = Apollo.SubscriptionResult<TaskUpdatedSubscription>;
-export const TasksDocument = gql`
-    query Tasks($status: String, $sortBy: String) {
-  tasks(status: $status, sortBy: $sortBy) {
-    id
-    title
-    status
+export const TasksQueryDocument = gql`
+    query TasksQuery($status: String, $sortBy: String, $limit: Int, $offset: Int) {
+  tasks(status: $status, sortBy: $sortBy, limit: $limit, offset: $offset) {
+    tasks {
+      id
+      title
+      status
+    }
+    totalCount
+    hasMore
   }
 }
     `;
 
 /**
- * __useTasksQuery__
+ * __useTasksQueryQuery__
  *
- * To run a query within a React component, call `useTasksQuery` and pass it any options that fit your needs.
- * When your component renders, `useTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useTasksQueryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTasksQueryQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useTasksQuery({
+ * const { data, loading, error } = useTasksQueryQuery({
  *   variables: {
  *      status: // value for 'status'
  *      sortBy: // value for 'sortBy'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
  *   },
  * });
  */
-export function useTasksQuery(baseOptions?: Apollo.QueryHookOptions<TasksQuery, TasksQueryVariables>) {
+export function useTasksQueryQuery(baseOptions?: Apollo.QueryHookOptions<TasksQueryQuery, TasksQueryQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<TasksQuery, TasksQueryVariables>(TasksDocument, options);
+        return Apollo.useQuery<TasksQueryQuery, TasksQueryQueryVariables>(TasksQueryDocument, options);
       }
-export function useTasksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TasksQuery, TasksQueryVariables>) {
+export function useTasksQueryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TasksQueryQuery, TasksQueryQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<TasksQuery, TasksQueryVariables>(TasksDocument, options);
+          return Apollo.useLazyQuery<TasksQueryQuery, TasksQueryQueryVariables>(TasksQueryDocument, options);
         }
-export function useTasksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TasksQuery, TasksQueryVariables>) {
+export function useTasksQuerySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TasksQueryQuery, TasksQueryQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<TasksQuery, TasksQueryVariables>(TasksDocument, options);
+          return Apollo.useSuspenseQuery<TasksQueryQuery, TasksQueryQueryVariables>(TasksQueryDocument, options);
         }
-export type TasksQueryHookResult = ReturnType<typeof useTasksQuery>;
-export type TasksLazyQueryHookResult = ReturnType<typeof useTasksLazyQuery>;
-export type TasksSuspenseQueryHookResult = ReturnType<typeof useTasksSuspenseQuery>;
-export type TasksQueryResult = Apollo.QueryResult<TasksQuery, TasksQueryVariables>;
+export type TasksQueryQueryHookResult = ReturnType<typeof useTasksQueryQuery>;
+export type TasksQueryLazyQueryHookResult = ReturnType<typeof useTasksQueryLazyQuery>;
+export type TasksQuerySuspenseQueryHookResult = ReturnType<typeof useTasksQuerySuspenseQuery>;
+export type TasksQueryQueryResult = Apollo.QueryResult<TasksQueryQuery, TasksQueryQueryVariables>;
 export const UpdateTaskDocument = gql`
     mutation UpdateTask($id: ID!, $status: String!) {
   updateTask(id: $id, status: $status) {

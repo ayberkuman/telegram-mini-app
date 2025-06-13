@@ -1,14 +1,14 @@
 import {
-  TasksDocument,
   useAddTaskMutation,
   useDeleteTaskMutation,
   useTaskAddedSubscription,
   useTaskDeletedSubscription,
-  useTasksQuery,
+  useTasksQueryQuery,
   useTaskUpdatedSubscription,
   useUpdateTaskMutation,
   type Task,
-  type TasksQuery,
+  type TasksQueryQuery,
+  TasksQueryDocument,
 } from "@/graphql/generated/graphql";
 import { sortByVar, statusVar, type TaskStatus } from "@/graphql/reactiveVars";
 import { ApolloError, useApolloClient, useReactiveVar } from "@apollo/client";
@@ -40,7 +40,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const client = useApolloClient();
 
-  const { data, loading, error } = useTasksQuery({
+  const { data, loading, error } = useTasksQueryQuery({
     variables: { status, sortBy },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
@@ -86,19 +86,22 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     update: (cache, { data }) => {
       if (data?.deleteTask) {
-        const existingData = cache.readQuery<TasksQuery>({
-          query: TasksDocument,
+        const existingData = cache.readQuery<TasksQueryQuery>({
+          query: TasksQueryDocument,
           variables: { status, sortBy },
         });
 
-        if (existingData?.tasks) {
+        if (existingData?.tasks.tasks) {
           cache.writeQuery({
-            query: TasksDocument,
+            query: TasksQueryDocument,
             variables: { status, sortBy },
             data: {
-              tasks: existingData.tasks.filter(
-                (task) => task.id !== data.deleteTask
-              ),
+              tasks: {
+                ...existingData.tasks,
+                tasks: existingData.tasks.tasks.filter(
+                  (task) => task.id !== data.deleteTask
+                ),
+              },
             },
           });
         }
@@ -117,26 +120,26 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (taskAdded?.taskAdded) {
-      const existingData = client.readQuery<TasksQuery>({
-        query: TasksDocument,
+      const existingData = client.readQuery<TasksQueryQuery>({
+        query: TasksQueryDocument,
         variables: { status, sortBy },
       });
 
-      if (existingData?.tasks) {
+      if (existingData?.tasks.tasks) {
         // Only add if task doesn't already exist (prevents duplicates)
-        const taskExists = existingData.tasks.some(
+        const taskExists = existingData.tasks.tasks.some(
           (task) => task.id === taskAdded.taskAdded.id
         );
 
         if (!taskExists) {
           client.writeQuery({
-            query: TasksDocument,
+            query: TasksQueryDocument,
             variables: { status, sortBy },
             data: {
               tasks: {
                 ...existingData.tasks,
-                tasks: [taskAdded.taskAdded, ...existingData.tasks],
-                totalCount: existingData.tasks.length + 1,
+                tasks: [taskAdded.taskAdded, ...existingData.tasks.tasks],
+                totalCount: existingData.tasks.totalCount + 1,
               },
             },
           });
@@ -214,9 +217,9 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <TasksContext.Provider
       value={{
-        tasks: data?.tasks || [],
-        totalCount: data?.tasks?.length || 0,
-        hasMore: false,
+        tasks: data?.tasks.tasks || [],
+        totalCount: data?.tasks.totalCount || 0,
+        hasMore: data?.tasks.hasMore || false,
         loading,
         error,
         handleAddTask,

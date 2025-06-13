@@ -4,8 +4,14 @@ type Task {
   status: String! # "PENDING" | "IN_PROGRESS" | "DONE"
 }
 
+type TasksResult {
+  tasks: [Task!]!
+  totalCount: Int!
+  hasMore: Boolean!
+}
+
 type Query {
-  tasks(status: String, sortBy: String): [Task!]!
+  tasks(status: String, sortBy: String, limit: Int, offset: Int): TasksResult!
 }
 
 type Mutation {

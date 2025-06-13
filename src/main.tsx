@@ -13,15 +13,13 @@ import { TasksProvider } from "@/context/tasks-context.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ApolloProvider client={client}>
-      <TonConnectUIProvider manifestUrl="https://localhost:5173/tonconnect-manifest.json">
-        <ChakraProvider>
-          <LanguageProvider>
-            <TasksProvider>
-              <App />
-            </TasksProvider>
-          </LanguageProvider>
-        </ChakraProvider>
-      </TonConnectUIProvider>
+      <ChakraProvider>
+        <LanguageProvider>
+          <TasksProvider>
+            <App />
+          </TasksProvider>
+        </LanguageProvider>
+      </ChakraProvider>
     </ApolloProvider>
   </StrictMode>
 );

@@ -1,7 +1,11 @@
-query Tasks($status: String, $sortBy: String) {
-  tasks(status: $status, sortBy: $sortBy) {
-    id
-    title
-    status
+query TasksQuery($status: String, $sortBy: String, $limit: Int, $offset: Int) {
+  tasks(status: $status, sortBy: $sortBy, limit: $limit, offset: $offset) {
+    tasks {
+      id
+      title
+      status
+    }
+    totalCount
+    hasMore
   }
 }
