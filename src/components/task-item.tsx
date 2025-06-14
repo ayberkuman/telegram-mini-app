@@ -4,7 +4,7 @@ import * as React from "react";
 import TaskSwitch from "@/components/task-switch";
 import AnimatedCheckbox from "@/components/ui/animated-checkbox";
 import { type Task } from "@/graphql/generated/graphql";
-import { Badge, Flex } from "@chakra-ui/react";
+import { Badge, Flex, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -55,16 +55,22 @@ export const TaskItem = React.memo(
               <AnimatedCheckbox.Label
                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
               >
-                {task.title}
+                <Text fontSize="sm" sm={{ fontSize: "md" }}>
+                  {task.title}
+                </Text>
               </AnimatedCheckbox.Label>
             </AnimatedCheckbox>
             <Flex align="center" gap={2}>
-              <Badge fontSize="xs">{t("pending")}</Badge>
+              <Badge smDown={{ display: "none" }} size="sm" fontSize="xs">
+                {t("pending")}
+              </Badge>
               <TaskSwitch
                 task={task}
                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
               />
-              <Badge fontSize="xs">{t("inProgress")}</Badge>
+              <Badge smDown={{ display: "none" }} size="sm" fontSize="xs">
+                {t("inProgress")}
+              </Badge>
             </Flex>
           </Flex>
         </motion.div>

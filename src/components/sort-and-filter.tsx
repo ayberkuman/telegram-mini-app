@@ -47,10 +47,15 @@ export default function SortAndFilter() {
   }, [status, sortBy]);
 
   return (
-    <Flex gap={2} align="center">
+    <Flex
+      gap={2}
+      align="center"
+      smDown={{ flexDirection: "column", width: "100%" }}
+    >
       <Select.Root
         collection={statusCollection}
         width="140px"
+        smDown={{ width: "100%" }}
         value={status ? [status] : [""]}
         onValueChange={(e) => {
           const val = Array.isArray(e.value) ? e.value[0] : e.value;
@@ -89,6 +94,7 @@ export default function SortAndFilter() {
       <Select.Root
         collection={sortCollection}
         width="140px"
+        smDown={{ width: "100%" }}
         value={sortBy ? [sortBy] : [""]}
         onValueChange={(e) => {
           const val = Array.isArray(e.value) ? e.value[0] : e.value;
