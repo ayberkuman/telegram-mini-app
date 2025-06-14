@@ -12,13 +12,14 @@ import {
 } from "@/graphql/generated/graphql";
 import { sortByVar, statusVar, type TaskStatus } from "@/graphql/reactiveVars";
 import { ApolloError, useApolloClient, useReactiveVar } from "@apollo/client";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface TasksContextType {
   tasks: Task[];
   totalCount: number;
   hasMore: boolean;
   loading: boolean;
+  loadingMore: boolean;
   error: ApolloError | undefined;
   handleAddTask: (title: string) => Promise<void>;
   handleStatusChange: (id: string, status: TaskStatus) => Promise<void>;
@@ -29,6 +30,7 @@ interface TasksContextType {
   setStatus: (status: TaskStatus | undefined) => void;
   setSortBy: (sortBy: string | undefined) => void;
   addTaskLoading: boolean;
+  fetchMoreTasks: () => Promise<void>;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -41,11 +43,52 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const client = useApolloClient();
 
-  const { data, loading, error } = useTasksQueryQuery({
-    variables: { status, sortBy },
+  const limit = 10; // You can adjust this as needed
+
+  const { data, loading, error, fetchMore } = useTasksQueryQuery({
+    variables: { status, sortBy, limit, offset: 0 },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
+
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchMoreTasks = React.useCallback(async () => {
+    if (!data?.tasks.hasMore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      await fetchMore({
+        variables: {
+          status,
+          sortBy,
+          limit,
+          offset: data.tasks.tasks.length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          const existingIds = new Set(prev.tasks.tasks.map((t) => t.id));
+          const newTasks = fetchMoreResult.tasks.tasks.filter(
+            (t) => !existingIds.has(t.id)
+          );
+          return {
+            tasks: {
+              ...fetchMoreResult.tasks,
+              tasks: [...prev.tasks.tasks, ...newTasks],
+            },
+          };
+        },
+      });
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [
+    data?.tasks.hasMore,
+    loadingMore,
+    fetchMore,
+    status,
+    sortBy,
+    data?.tasks.tasks.length,
+  ]);
 
   const [addTask, { loading: addTaskLoading }] = useAddTaskMutation({
     optimisticResponse: (variables) => ({
@@ -222,6 +265,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
         totalCount: data?.tasks.totalCount || 0,
         hasMore: data?.tasks.hasMore || false,
         loading,
+        loadingMore,
         error,
         handleAddTask,
         handleStatusChange,
@@ -231,6 +275,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
         setStatus,
         setSortBy,
         addTaskLoading,
+        fetchMoreTasks,
       }}
     >
       {children}

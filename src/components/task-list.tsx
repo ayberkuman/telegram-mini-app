@@ -17,14 +17,24 @@ import {
 } from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function TaskList() {
   const { t } = useTranslation();
   /*  const userAddress = useTonAddress(); */
-  const { tasks, handleAddTask, handleDeleteTask, loading, addTaskLoading } =
-    useTasks();
+  const {
+    tasks,
+    handleAddTask,
+    handleDeleteTask,
+    loading,
+    addTaskLoading,
+    fetchMoreTasks,
+    hasMore,
+    loadingMore,
+  } = useTasks();
+  const listRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState("");
@@ -61,6 +71,28 @@ export default function TaskList() {
     [tasks, handleDeleteTask]
   );
 
+  // Infinite scroll: load more when near bottom (debounced)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        const el = listRef.current;
+        if (!el || loadingMore || !hasMore) return;
+        if (el.scrollHeight - el.scrollTop - el.clientHeight < 100) {
+          fetchMoreTasks();
+        }
+      }, 100);
+    };
+    const el = listRef.current;
+    if (el) {
+      el.addEventListener("scroll", handleScroll);
+      return () => {
+        el.removeEventListener("scroll", handleScroll);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+      };
+    }
+  }, [fetchMoreTasks, loadingMore, hasMore]);
+
   return (
     <Container maxW="xl" margin="auto" padding="12">
       <Flex justify="space-between" align="center" w="full">
@@ -83,16 +115,27 @@ export default function TaskList() {
         <Flex justify="space-between" align="end">
           <SortAndFilter />
         </Flex>
-        <Flex direction="column" gap="3" maxH="400px" overflowY="auto">
-          <AnimatePresence initial={false}>
-            {loading ? (
-              <Center h={300}>
-                <Spinner />
-              </Center>
-            ) : (
-              taskItems
-            )}
-          </AnimatePresence>
+        <Flex
+          direction="column"
+          gap="3"
+          maxH="400px"
+          overflowY="auto"
+          ref={listRef}
+        >
+          {loading && tasks.length === 0 ? (
+            <Center h={300}>
+              <Spinner />
+            </Center>
+          ) : (
+            <>
+              <AnimatePresence initial={false}>{taskItems}</AnimatePresence>
+              {loadingMore && tasks.length > 0 && (
+                <Center py={2}>
+                  <Spinner size="sm" />
+                </Center>
+              )}
+            </>
+          )}
         </Flex>
         <Flex pt={4} align="center" justify="space-between">
           {isAddingTask ? (
@@ -104,7 +147,7 @@ export default function TaskList() {
                 onChange={(e) => setNewTask(e.target.value)}
               />
               <IconButton
-                bg="bg.success"
+                bg="green.400"
                 variant="plain"
                 onClick={onAddTask}
                 disabled={!newTask.trim() || addTaskLoading}
