@@ -11,7 +11,9 @@ import {
   Group,
   IconButton,
   Input,
+  Spinner,
   Text,
+  Center,
 } from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
@@ -21,7 +23,8 @@ import { useTranslation } from "react-i18next";
 export default function TaskList() {
   const { t } = useTranslation();
   /*  const userAddress = useTonAddress(); */
-  const { tasks, handleAddTask, handleDeleteTask } = useTasks();
+  const { tasks, handleAddTask, handleDeleteTask, loading, addTaskLoading } =
+    useTasks();
 
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState("");
@@ -81,7 +84,15 @@ export default function TaskList() {
           <SortAndFilter />
         </Flex>
         <Flex direction="column" gap="3" maxH="400px" overflowY="auto">
-          <AnimatePresence initial={false}>{taskItems}</AnimatePresence>
+          <AnimatePresence initial={false}>
+            {loading ? (
+              <Center h={300}>
+                <Spinner />
+              </Center>
+            ) : (
+              taskItems
+            )}
+          </AnimatePresence>
         </Flex>
         <Flex pt={4} align="center" justify="space-between">
           {isAddingTask ? (
@@ -96,9 +107,13 @@ export default function TaskList() {
                 bg="bg.success"
                 variant="plain"
                 onClick={onAddTask}
-                disabled={!newTask.trim()}
+                disabled={!newTask.trim() || addTaskLoading}
               >
-                <Check className="text-gray-900" />
+                {addTaskLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Check className="text-gray-900" />
+                )}
               </IconButton>
               <IconButton
                 bg="bg.warning"

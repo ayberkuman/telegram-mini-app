@@ -4,10 +4,12 @@ export const Switch = ({
   id,
   checked,
   setChecked,
+  onClick,
 }: {
   id: string;
   checked: boolean;
   setChecked: (checked: boolean) => void;
+  onClick?: React.MouseEventHandler;
 }) => {
   return (
     <form className="flex space-x-4  antialiased items-center">
@@ -17,6 +19,7 @@ export const Switch = ({
           "h-6  flex items-center border border-transparent shadow-[inset_0px_0px_12px_rgba(0,0,0,0.25)] rounded-full w-[50px] relative cursor-pointer transition duration-200",
           checked ? "bg-yellow-400" : "bg-slate-700 border-slate-500"
         )}
+        onClick={onClick}
       >
         <motion.div
           initial={{

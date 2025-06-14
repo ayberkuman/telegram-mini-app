@@ -28,6 +28,7 @@ interface TasksContextType {
   sortBy: string | undefined;
   setStatus: (status: TaskStatus | undefined) => void;
   setSortBy: (sortBy: string | undefined) => void;
+  addTaskLoading: boolean;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -46,7 +47,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     notifyOnNetworkStatusChange: true,
   });
 
-  const [addTask] = useAddTaskMutation({
+  const [addTask, { loading: addTaskLoading }] = useAddTaskMutation({
     optimisticResponse: (variables) => ({
       addTask: {
         __typename: "Task",
@@ -229,6 +230,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
         sortBy,
         setStatus,
         setSortBy,
+        addTaskLoading,
       }}
     >
       {children}

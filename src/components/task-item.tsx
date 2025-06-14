@@ -60,7 +60,10 @@ export const TaskItem = React.memo(
             </AnimatedCheckbox>
             <Flex align="center" gap={2}>
               <Badge fontSize="xs">{t("pending")}</Badge>
-              <TaskSwitch task={task} />
+              <TaskSwitch
+                task={task}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              />
               <Badge fontSize="xs">{t("inProgress")}</Badge>
             </Flex>
           </Flex>

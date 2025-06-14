@@ -2,7 +2,13 @@ import { Switch } from "@/components/ui/animated-switch";
 import { useTasks } from "@/context/tasks-context";
 import type { Task } from "@/graphql/generated/graphql";
 
-export default function TaskSwitch({ task }: { task: Task }) {
+export default function TaskSwitch({
+  task,
+  onClick,
+}: {
+  task: Task;
+  onClick?: React.MouseEventHandler;
+}) {
   const { handleStatusChange } = useTasks();
 
   const toggleSwitch = (checked: boolean) => {
@@ -14,6 +20,7 @@ export default function TaskSwitch({ task }: { task: Task }) {
       id={`task-switch-${task.id}`}
       checked={task.status === "IN_PROGRESS"}
       setChecked={toggleSwitch}
+      onClick={onClick}
     />
   );
 }
