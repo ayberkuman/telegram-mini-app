@@ -22,10 +22,7 @@ export const Switch = ({
         onClick={onClick}
       >
         <motion.div
-          initial={{
-            width: "20px",
-            x: checked ? 0 : 26,
-          }}
+          initial={false}
           animate={{
             height: ["20px", "10px", "20px"],
             width: ["20px", "30px", "20px", "20px"],
@@ -35,7 +32,6 @@ export const Switch = ({
             duration: 0.3,
             delay: 0.1,
           }}
-          key={String(checked)}
           className={clsx(
             "h-[20px] block rounded-full bg-white shadow-md z-10"
           )}

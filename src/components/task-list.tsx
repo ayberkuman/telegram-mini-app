@@ -141,33 +141,40 @@ export default function TaskList() {
         </Flex>
         <Flex pt={4} align="center" justify="space-between">
           {isAddingTask ? (
-            <Group attached w="full">
-              <Input
-                flex="1"
-                placeholder={t("addTask")}
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-              />
-              <IconButton
-                bg="green.400"
-                variant="plain"
-                onClick={onAddTask}
-                disabled={!newTask.trim() || addTaskLoading}
-              >
-                {addTaskLoading ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <Check className="text-gray-900" />
-                )}
-              </IconButton>
-              <IconButton
-                bg="bg.warning"
-                variant="plain"
-                onClick={() => setIsAddingTask(false)}
-              >
-                <X />
-              </IconButton>
-            </Group>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onAddTask();
+              }}
+            >
+              <Group attached w="full">
+                <Input
+                  flex="1"
+                  placeholder={t("addTask")}
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                />
+                <IconButton
+                  bg="green.400"
+                  variant="plain"
+                  type="submit"
+                  disabled={!newTask.trim() || addTaskLoading}
+                >
+                  {addTaskLoading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <Check className="text-gray-900" />
+                  )}
+                </IconButton>
+                <IconButton
+                  bg="bg.warning"
+                  variant="plain"
+                  onClick={() => setIsAddingTask(false)}
+                >
+                  <X />
+                </IconButton>
+              </Group>
+            </form>
           ) : (
             <Button size="sm" onClick={() => setIsAddingTask(true)}>
               <Plus />
