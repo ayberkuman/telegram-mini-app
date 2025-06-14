@@ -33,6 +33,8 @@ Replace with your actual backend endpoints.
 
 ### 4. **Generate GraphQL types and hooks**
 
+If you make any changes to the GraphQL schema, you need to generate the types and hooks again.
+
 ```bash
 yarn generate
 ```
@@ -44,20 +46,6 @@ yarn dev
 ```
 
 The app will be available at [http://localhost:5173](http://localhost:5173).
-
-### 6. **Build for production**
-
-```bash
-yarn build
-```
-
-### 7. **Preview production build**
-
-```bash
-yarn start
-```
-
----
 
 ## 🏗️ Architecture Description
 
@@ -202,9 +190,3 @@ const { data } = useTaskAddedSubscription();
 3. Commit your changes (`git commit -am 'Add foo'`)
 4. Push to the branch (`git push origin feature/foo`)
 5. Create a new Pull Request
-
----
-
-## 📄 License
-
-MIT
