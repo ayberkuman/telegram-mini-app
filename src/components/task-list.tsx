@@ -6,6 +6,7 @@ import { toaster } from "@/components/ui/toaster";
 import { useTasks } from "@/context/tasks-context";
 import {
   Button,
+  Center,
   Container,
   Flex,
   Group,
@@ -13,18 +14,15 @@ import {
   Input,
   Spinner,
   Text,
-  Center,
-  Badge,
 } from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
 import { Check, Plus, X } from "lucide-react";
-import { useCallback, useMemo, useRef, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 
 export default function TaskList() {
   const { t } = useTranslation();
-  const userAddress = useTonAddress();
+
   const {
     tasks,
     handleAddTask,
@@ -99,11 +97,7 @@ export default function TaskList() {
     <Container maxW="xl" margin="auto" padding="12">
       <Flex justify="space-between" align="center" w="full">
         <ColorModeButton />
-        {userAddress ? (
-          <Badge variant="plain">{userAddress}</Badge>
-        ) : (
-          <TonConnectButton />
-        )}
+
         <LanguageSwitcher />
       </Flex>
       <Flex
